@@ -350,7 +350,9 @@ router.post('/delete_placement_info',async(req,res)=>{
   });
  
 })
-router.post('/test-route',(req,res)=>{
+
+
+router.post('/test_route',async(req,res)=>{
   res.json("Hello customer")
 })
 
