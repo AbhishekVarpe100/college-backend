@@ -23,7 +23,8 @@ const Result = require("../models/Result");
 const Messages = require("../models/Messages");
 const nodeCache=new cache({stdTTL:60,checkperiod:120})
 const cloudinary = require('cloudinary').v2;
-const streamifier=require('streamifier')
+const streamifier=require('streamifier');
+const LocationModel = require("../models/LocationModel");
 
 
 require("../Connection");
@@ -157,6 +158,16 @@ router.post('/login',async (req,res)=>{
   }  
 
  }
+})
+
+router.get('/get-user-details',async(req,res)=>{
+    try{
+      let userData=await LocationModel.find()
+      res.json(userData)
+    }
+    catch(err){
+      console.log(err)
+    }
 })
 
 router.post('/getprofile',verifyToken, (req,res)=>{
