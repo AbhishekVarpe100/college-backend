@@ -1,30 +1,30 @@
-// middleware/locationMiddleware.js
 const requestIp = require('request-ip');
-const fetch = require('node-fetch');
 const LocationModel = require('../models/LocationModel');
 
 const locationMiddleware = async (req, res, next) => {
-  const clientIp = requestIp.getClientIp(req);
+  let clientIp = requestIp.getClientIp(req) || req.ip;
+
+  // Clean IPv6 local or mapped IPs
+  if (clientIp.includes('::ffff:')) clientIp = clientIp.split('::ffff:')[1];
+  if (clientIp === '::1' || clientIp === '127.0.0.1') clientIp = '8.8.8.8'; // test IP for local dev
 
   try {
-    // Check if this IP already exists in the database
     const existing = await LocationModel.findOne({ ip: clientIp });
 
     if (!existing) {
-      // Fetch geolocation data
       const geoRes = await fetch(`https://ipapi.co/${clientIp}/json/`);
-      const data = await geoRes.json();
+      const data = await geoRes.json(); // ✅ await here
 
-      // Save to MongoDB
+      console.log(`✅ New user location saved: ${data.city}, ${data.country_name} (${clientIp})`);
+
+      // Optional: Save to DB
       const newLocation = new LocationModel({
         ip: clientIp,
         city: data.city,
         region: data.region,
         country: data.country_name,
       });
-
       await newLocation.save();
-      console.log(`✅ New user location saved: ${data.city}, ${data.country_name} (${clientIp})`);
     } else {
       console.log(`ℹ️ Existing user IP detected: ${clientIp}, skipping save`);
     }
@@ -36,4 +36,3 @@ const locationMiddleware = async (req, res, next) => {
 };
 
 module.exports = locationMiddleware;
-
