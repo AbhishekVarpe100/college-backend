@@ -45,33 +45,44 @@ router.post('/upload_photo',upload.single('file'),async (req,res)=>{
 
 router.post('/edit_photo',upload.single('file'),async (req,res)=>{
     if(req.body.type=='student'){
+        const file= await User.findOne({_id:req.body.id},{photo:1,_id:0})
+        const public_id='Profile_Images'+file.photo.split("Profile_Images")[1].split('.')[0]
+        cloudinary.uploader.destroy(public_id, { resource_type: 'image' },async (error, result) => {
+        if (error) {
+          console.error('❌ Error deleting image:', error);
+        } else {
+          await User.updateOne({_id:req.body.id},{$set:{photo:req.file.path}});
+          res.json('uploaded');
+        }
+      });
+      }
+    // if(req.body.type=='student'){
 
-       const file= await User.findOne({_id:req.body.id},{photo:1,_id:0})
+    //    const file= await User.findOne({_id:req.body.id},{photo:1,_id:0})
 
-        fs.unlink(`Public/Profile_Images/${file.photo}`,(err)=>{
-            if(err){
-                console.log("Something wrong");
-            }
-            console.log("File deleted");
-        });
-        await User.updateOne({_id:req.body.id},{$set:{photo:req.file.filename}});
-        // console.log(file.photo);
-        res.json('uploaded');
+    //     fs.unlink(`Public/Profile_Images/${file.photo}`,(err)=>{
+    //         if(err){
+    //             console.log("Something wrong");
+    //         }
+    //         console.log("File deleted");
+    //     });
+    //     await User.updateOne({_id:req.body.id},{$set:{photo:req.file.filename}});
+    //     // console.log(file.photo);
+    //     res.json('uploaded');
 
-    }
-    else if(req.body.type=='staff'){
+    // }
+   else if(req.body.type=='staff'){
         const file= await Staff.findOne({_id:req.body.id},{photo:1,_id:0})
-
-        fs.unlink(`Public/Profile_Images/${file.photo}`,(err)=>{
-            if(err){
-                console.log("Something wrong");
-            }
-            console.log("File deleted");
-        });
-        await Staff.updateOne({_id:req.body.id},{$set:{photo:req.file.filename}});
-        // console.log(file.photo);
-        res.json('uploaded');
-    }
+        const public_id='Profile_Images'+file.photo.split("Profile_Images")[1].split('.')[0]
+        cloudinary.uploader.destroy(public_id, { resource_type: 'image' },async (error, result) => {
+        if (error) {
+          console.error('❌ Error deleting image:', error);
+        } else {
+          await Staff.updateOne({_id:req.body.id},{$set:{photo:req.file.path}});
+          res.json('uploaded');
+        }
+      });
+      }
     
 })
 
