@@ -1,7 +1,7 @@
 // middleware/locationMiddleware.js
-import requestIp from 'request-ip';
-import fetch from 'node-fetch';
-import UserLocation from '../models/LocationModel';
+const requestIp = require('request-ip');
+const fetch = require('node-fetch');
+const LocationModel = require('../models/LocationModel');
 
 const locationMiddleware = async (req, res, next) => {
   const clientIp = requestIp.getClientIp(req);
