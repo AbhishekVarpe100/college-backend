@@ -5,9 +5,8 @@ const LocationModel = require('../models/LocationModel');
 const locationMiddleware = async (req, res, next) => {
   let clientIp = requestIp.getClientIp(req) || req.ip;
 
-  // Normalize IP
   if (clientIp.includes('::ffff:')) clientIp = clientIp.split('::ffff:')[1];
-  if (clientIp === '::1' || clientIp === '127.0.0.1') clientIp = '8.8.8.8'; // fallback for local
+  if (clientIp === '::1' || clientIp === '127.0.0.1') clientIp = '8.8.8.8';
 
   try {
     const existing = await LocationModel.findOne({ ip: clientIp });
@@ -19,32 +18,32 @@ const locationMiddleware = async (req, res, next) => {
 
       const newLocation = new LocationModel({
         ip: data.ip,
-        network: data.network || '',
-        version: data.type || '',
-        city: data.city || '',
-        region: data.region || '',
-        region_code: data.region_code || '',
-        country: data.country || '',
-        country_name: data.country_name || '',
-        country_code: data.country_code || '',
-        country_code_iso3: data.country_code_iso3 || '',
-        country_capital: data.country_capital || '',
-        country_tld: data.country_tld || '',
-        continent_code: data.continent_code || '',
-        in_eu: data.in_eu || false,
-        postal: data.postal || '',
+        type: data.type,
+        continent: data.continent,
+        continent_code: data.continent_code,
+        country: data.country,
+        country_code: data.country_code,
+        country_flag: data.country_flag,
+        country_capital: data.country_capital,
+        country_phone: data.country_phone,
+        country_neighbours: data.country_neighbours,
+        region: data.region,
+        city: data.city,
         latitude: data.latitude,
         longitude: data.longitude,
+        asn: data.asn,
+        org: data.org,
+        isp: data.isp,
         timezone: data.timezone,
-        utc_offset: data.utc_offset || '',
-        country_calling_code: data.country_calling_code || '',
-        currency: data.currency || '',
-        currency_name: data.currency_name || '',
-        languages: data.languages || '',
-        country_area: data.country_area || 0,
-        country_population: data.country_population || 0,
-        asn: data.asn || '',
-        org: data.org || '',
+        timezone_name: data.timezone_name,
+        timezone_dstOffset: data.timezone_dstOffset,
+        timezone_gmtOffset: data.timezone_gmtOffset,
+        timezone_gmt: data.timezone_gmt,
+        currency: data.currency,
+        currency_code: data.currency_code,
+        currency_symbol: data.currency_symbol,
+        currency_rates: data.currency_rates,
+        currency_plural: data.currency_plural,
         browser: `${agent.browser} ${agent.version}`,
         os: agent.os,
         device: `${agent.platform} ${agent.source}`,
@@ -53,12 +52,12 @@ const locationMiddleware = async (req, res, next) => {
 
       await newLocation.save();
 
-      console.log(`✅ Saved location: ${data.city}, ${data.country_name} (${clientIp})`);
+      console.log(`✅ New location saved for ${clientIp}`);
     } else {
-      console.log(`ℹ️ Existing IP detected: ${clientIp}`);
+      console.log(`ℹ️ Existing IP: ${clientIp}`);
     }
   } catch (err) {
-    console.error('❌ Error in location middleware:', err.message);
+    console.error('❌ Location Middleware Error:', err.message);
   }
 
   next();
