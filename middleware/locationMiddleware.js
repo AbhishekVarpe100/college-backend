@@ -6,28 +6,19 @@ const locationMiddleware = async (req, res, next) => {
   let clientIp = requestIp.getClientIp(req) || req.ip;
 
   if (clientIp.includes('::ffff:')) clientIp = clientIp.split('::ffff:')[1];
-  if (clientIp === '::1' || clientIp === '127.0.0.1') clientIp = '8.8.8.8'; // fallback for localhost
-
-  const agent = useragent.parse(req.headers['user-agent']);
-
-  const browser = `${agent.browser} ${agent.version}`;
-  const os = agent.os;
-  const device = `${agent.platform} ${agent.source}`;
+  if (clientIp === '::1' || clientIp === '127.0.0.1') clientIp = '8.8.8.8';
 
   try {
-    const existing = await LocationModel.findOne({
-      ip: clientIp,
-      browser,
-      os,
-      device,
-    });
-
+    const existing = await LocationModel.findOne({ ip: clientIp });
     if (!existing) {
-      const response = await fetch(`https://ipwhois.app/json/${clientIp}`);
-      const data = await response.json();
+      const geoRes = await fetch(`https://ipwhois.app/json/${clientIp}`);
+      const data = await geoRes.json();
+
+      const agent = useragent.parse(req.headers['user-agent']);
 
       const newLocation = new LocationModel({
         ip: data.ip,
+        type: data.type,
         continent: data.continent,
         continent_code: data.continent_code,
         country: data.country,
@@ -53,20 +44,20 @@ const locationMiddleware = async (req, res, next) => {
         currency_symbol: data.currency_symbol,
         currency_rates: data.currency_rates,
         currency_plural: data.currency_plural,
-        browser,
-        os,
-        device,
+        browser: `${agent.browser} ${agent.version}`,
+        os: agent.os,
+        device: `${agent.platform} ${agent.source}`,
         timestamp: new Date()
       });
 
       await newLocation.save();
 
-      console.log(`✅ New device stored from IP ${clientIp}`);
+      console.log(`✅ New location saved for ${clientIp}`);
     } else {
-      console.log(`ℹ️ Device already logged for IP ${clientIp}`);
+      console.log(`ℹ️ Existing IP: ${clientIp}`);
     }
-  } catch (error) {
-    console.error('❌ Error saving location info:', error.message);
+  } catch (err) {
+    console.error('❌ Location Middleware Error:', err.message);
   }
 
   next();
