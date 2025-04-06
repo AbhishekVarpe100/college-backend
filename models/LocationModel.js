@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 
 const locationSchema = new mongoose.Schema({
   ip: String,
-  type: String,
   continent: String,
   continent_code: String,
   country: String,
