@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const LocationSchema = new mongoose.Schema({
+const locationSchema = new mongoose.Schema({
   ip: String,
   network: String,
   version: String,
@@ -34,4 +34,4 @@ const LocationSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Location', LocationSchema);
+module.exports = mongoose.model('Location', locationSchema);

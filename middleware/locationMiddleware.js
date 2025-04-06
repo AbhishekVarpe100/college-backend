@@ -1,13 +1,12 @@
 const requestIp = require('request-ip');
-const useragent = require('useragent');
+const useragent = require('express-useragent');
 const LocationModel = require('../models/LocationModel');
 
 const locationMiddleware = async (req, res, next) => {
   let clientIp = requestIp.getClientIp(req) || req.ip;
 
-  // Clean IPv6 local or mapped IPs
   if (clientIp.includes('::ffff:')) clientIp = clientIp.split('::ffff:')[1];
-  if (clientIp === '::1' || clientIp === '127.0.0.1') clientIp = '8.8.8.8'; // test IP for local dev
+  if (clientIp === '::1' || clientIp === '127.0.0.1') clientIp = '8.8.8.8'; // for local
 
   try {
     const existing = await LocationModel.findOne({ ip: clientIp });
@@ -46,19 +45,20 @@ const locationMiddleware = async (req, res, next) => {
         country_population: data.country_population,
         asn: data.asn,
         org: data.org,
-        browser: `${agent.family} ${agent.major}.${agent.minor}.${agent.patch}`,
-        os: `${agent.os.family} ${agent.os.major}`,
-        device: `${agent.device.family} ${agent.device.major || '0'}.${agent.device.minor || '0'}.${agent.device.patch || '0'}`,
-        timestamp: new Date(),
+        browser: `${agent.browser} ${agent.version}`,
+        os: `${agent.os}`,
+        device: `${agent.platform} ${agent.source}`,
+        timestamp: new Date()
       });
 
       await newLocation.save();
-      console.log(`✅ Saved: ${data.city}, ${data.country_name} | ${agent.family} (${clientIp})`);
+
+      console.log(`✅ New location stored: ${data.city}, ${data.country_name} (${clientIp})`);
     } else {
-      console.log(`ℹ️ Existing IP: ${clientIp}, skipping save`);
+      console.log(`ℹ️ Existing IP: ${clientIp}, skipping`);
     }
   } catch (err) {
-    console.error('❌ Location lookup error:', err.message);
+    console.error('❌ IP lookup error:', err.message);
   }
 
   next();
