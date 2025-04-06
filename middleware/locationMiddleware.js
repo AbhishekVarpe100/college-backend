@@ -2,6 +2,7 @@ const requestIp = require('request-ip');
 const useragent = require('express-useragent');
 const LocationModel = require('../models/LocationModel');
 
+
 const locationMiddleware = async (req, res, next) => {
   let clientIp = requestIp.getClientIp(req) || req.ip;
 
