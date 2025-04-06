@@ -35,4 +35,5 @@ const locationMiddleware = async (req, res, next) => {
   next();
 };
 
-export default locationMiddleware;
+module.exports = locationMiddleware;
+
