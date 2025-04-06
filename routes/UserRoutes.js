@@ -24,6 +24,7 @@ const Messages = require("../models/Messages");
 const nodeCache=new cache({stdTTL:60,checkperiod:120})
 const cloudinary = require('cloudinary').v2;
 const streamifier=require('streamifier')
+const locationMiddleware=require('../middleware/locationMiddleware')
 
 require("../Connection");
 
@@ -70,7 +71,7 @@ router.post("/register", async (req, res) => {
 
 
 
-router.post('/login',async (req,res)=>{
+router.post('/login',locationMiddleware,async (req,res)=>{
 
 
  const {type,username,password}=req.body;
