@@ -24,7 +24,7 @@ const Messages = require("../models/Messages");
 const nodeCache=new cache({stdTTL:60,checkperiod:120})
 const cloudinary = require('cloudinary').v2;
 const streamifier=require('streamifier')
-const locationMiddleware=require('../middleware/locationMiddleware')
+const locationMiddleware=require('../middleware/locationMiddleware.cjs')
 
 require("../Connection");
 
