@@ -254,13 +254,17 @@ router.get('/get_theme',async(req,res)=>{
 router.post('/delete_photo',async (req,res)=>{
   const {id,type,photo}=req.body;
   if(type=='student'){
-    fs.unlink(`Public/Profile_Images/${photo}`,(err)=>{
-      if(err){
-        console.log(err)
-      }
-    })
-    await User.updateOne({_id:id},{$unset:{photo:"",}})
-    res.json("deleted student");
+    const public_id='Profile_Images'+photo.split("Profile_Images")[1].split('.')[0]
+    cloudinary.uploader.destroy(public_id, { resource_type: 'image' },async (error, result) => {
+    if (error) {
+      console.error('❌ Error deleting image:', error);
+    } else {
+      await User.updateOne({_id:id},{$unset:{photo:"",}})
+      res.json("deleted student");
+      console.log('✅ Image deleted successfully:', result);
+    }
+  });
+    
   }
   else if(type=='staff'){
     fs.unlink(`Public/Profile_Images/${photo}`,(err)=>{
