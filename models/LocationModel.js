@@ -1,4 +1,3 @@
-// models/LocationModel.js
 const mongoose = require('mongoose');
 
 const locationSchema = new mongoose.Schema({
@@ -32,7 +31,7 @@ const locationSchema = new mongoose.Schema({
   browser: String,
   os: String,
   device: String,
-  timestamp: { type: Date, default: Date.now }
+  timestamp: Date
 });
 
 module.exports = mongoose.model('Location', locationSchema);
