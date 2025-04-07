@@ -12,7 +12,7 @@ app.use(cors())
 require('dotenv').config()
 app.use(bodyParser.json());
 app.use(express.static('Public'));
-app.use(locationMiddleware)
+//app.use(locationMiddleware)
 // app.use(morgan())
 
 
